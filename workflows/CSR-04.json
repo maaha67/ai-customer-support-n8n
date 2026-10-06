@@ -1,0 +1,625 @@
+{
+  "name": "CSR-04 | Support Follow-up Queue",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -144
+      ],
+      "id": "4a9220ba-b20e-4313-8cfa-6dfa568bab66",
+      "name": "Start Follow-up Queue Test"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Support_Tickets",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        -144
+      ],
+      "id": "2d48760d-1497-45a0-b384-5eec93d04ef1",
+      "name": "Get Support Tickets for Follow-up"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4adc3e7f-e9bf-47e8-9bdb-3b92641fbed0",
+              "leftValue": "={{ ['ERROR', 'NEEDS_REVIEW', 'NEEDS_REVISION', 'SEND_REVIEW_REQUIRED'].includes(String($json.processing_status || '').trim()) || String($json.resolution_status || '').trim() === 'Needs Follow-up' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        448,
+        -144
+      ],
+      "id": "021bf8a5-2b50-4d7d-bdec-ac0638d4a4b4",
+      "name": "Needs Support Attention?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6d80edbb-7e2f-4bbb-b944-48f046aedf7e",
+              "name": "ticket_id",
+              "value": "={{ $json.ticket_id }}",
+              "type": "string"
+            },
+            {
+              "id": "d0ce965d-ea10-4486-8ea0-2d53cc2fca48",
+              "name": "order_id",
+              "value": "={{ $json.order_id }}",
+              "type": "string"
+            },
+            {
+              "id": "8f16a6bf-3eef-41c8-a9d3-4af3b35e1179",
+              "name": "category",
+              "value": "={{ $json.category }}",
+              "type": "string"
+            },
+            {
+              "id": "6aa45104-7bd0-412d-8d46-407a972d567b",
+              "name": "priority",
+              "value": "={{ $json.priority }}",
+              "type": "string"
+            },
+            {
+              "id": "009b7099-9c8d-4b00-acb4-b2109a0df8be",
+              "name": "processing_status",
+              "value": "={{ $json.processing_status }}",
+              "type": "string"
+            },
+            {
+              "id": "d08eabc2-d61c-4c75-9215-02aae5582d57",
+              "name": "resolution_status",
+              "value": "={{ $json.resolution_status }}",
+              "type": "string"
+            },
+            {
+              "id": "f7b6453a-2756-40ff-b5ed-5327343cf617",
+              "name": "customer_message",
+              "value": "={{ $json.customer_message }}",
+              "type": "string"
+            },
+            {
+              "id": "f440635e-0a6d-43a6-a55e-557d2de78046",
+              "name": "error_message",
+              "value": "={{ $json.error_message }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        672,
+        -240
+      ],
+      "id": "a0a2e2ca-f73c-40e5-8169-45c2dab8c5c1",
+      "name": "Prepare Follow-up Queue Item"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Followup_Queue",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ticket_id": "={{ $json.ticket_id }}",
+            "order_id": "={{ $json.order_id }}",
+            "category": "={{ $json.category }}",
+            "priority": "={{ $json.priority }}",
+            "processing_status": "={{ $json.processing_status }}",
+            "resolution_status": "={{ $json.resolution_status }}",
+            "customer_message": "={{ $json.customer_message }}",
+            "error_message": "={{ $json.error_message }}",
+            "last_refreshed_at": "={{ $now.toISO() }}",
+            "queue_status": "Active"
+          },
+          "matchingColumns": [
+            "ticket_id"
+          ],
+          "schema": [
+            {
+              "id": "ticket_id",
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "order_id",
+              "displayName": "order_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "processing_status",
+              "displayName": "processing_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "resolution_status",
+              "displayName": "resolution_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "customer_message",
+              "displayName": "customer_message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "error_message",
+              "displayName": "error_message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_refreshed_at",
+              "displayName": "last_refreshed_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "queue_status",
+              "displayName": "queue_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        896,
+        -240
+      ],
+      "id": "0b4c94d2-8071-4e98-83bc-fc2e7be7af90",
+      "name": "Save Follow-up Queue Item"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Followup_Queue",
+          "mode": "name"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "ticket_id",
+              "lookupValue": "={{ $json.ticket_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        672,
+        -48
+      ],
+      "id": "383dc082-d655-477c-984d-bff2ac18a7c1",
+      "name": "Find Existing Follow-up Entry"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "2473df03-d455-4f33-9392-5f3228975a09",
+              "leftValue": "={{ String($json.ticket_id || '').trim() }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        896,
+        -48
+      ],
+      "id": "1fc0d8a1-033f-43bc-9579-c0e6d9cb3c91",
+      "name": "Follow-up Entry Exists?"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Followup_Queue",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ticket_id": "={{ $json.ticket_id }}",
+            "queue_status": "Inactive",
+            "last_refreshed_at": "={{ $now.toISO() }}",
+            "processing_status": "={{ $('Needs Support Attention?').item.json.processing_status }}",
+            "resolution_status": "={{ $('Needs Support Attention?').item.json.resolution_status }}"
+          },
+          "matchingColumns": [
+            "ticket_id"
+          ],
+          "schema": [
+            {
+              "id": "ticket_id",
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "order_id",
+              "displayName": "order_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "processing_status",
+              "displayName": "processing_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "resolution_status",
+              "displayName": "resolution_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "customer_message",
+              "displayName": "customer_message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "error_message",
+              "displayName": "error_message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_refreshed_at",
+              "displayName": "last_refreshed_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "queue_status",
+              "displayName": "queue_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1120,
+        -128
+      ],
+      "id": "e3e06372-da1a-4246-adaa-0c8cbd46f084",
+      "name": "Mark Follow-up Entry Inactive"
+    },
+    {
+      "parameters": {
+        "content": "## CSR-04 | Support Follow-up Queue\n\nPurpose\nMaintain a queue of tickets that need support attention.\n\nFlow\nRead support tickets → check current status\n→ add or update active cases\n→ mark existing entries Inactive when attention\nis no longer required.\n\nQueue records are matched by ticket_id.\nExisting records are retained for reference.\n\nDemo scope\nRun manually to refresh the queue.\nThis workflow tracks cases; it does not send follow-up\nemails or resolve tickets.\n\n**Author: Maha**\nAI automation and product focused roles",
+        "height": 336,
+        "width": 432
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -608,
+        -272
+      ],
+      "id": "82198451-4abc-40b1-b249-48cbe5a86e18",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## 1. Identify Cases Needing Attention\n\nRead the current support tickets.\n\nInclude a ticket when processing_status is:\n• ERROR\n• NEEDS_REVIEW\n• NEEDS_REVISION\n• SEND_REVIEW_REQUIRED\n\nAlso include tickets whose resolution_status\nis Needs Follow-up.\n\nMatching tickets go to the Active queue branch.\nOther tickets go to the existing-entry check.",
+        "height": 304,
+        "width": 416
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        16,
+        -464
+      ],
+      "id": "a6c46a71-0b74-444f-951c-416fedc4615e",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## 2. Add or Refresh Active Cases\n\nCopy the ticket details, current statuses,\ncustomer message, and error message into the queue.\n\nMatch records by ticket_id:\n• Add an entry if none exists.\n• Update the matching entry if it already exists.\n\nSet queue_status to Active and refresh last_refreshed_at.\n\nRepeated sequential runs update the same ticket entry.\nPreviously inactive cases become Active again\nwhen they need support attention.",
+        "height": 256,
+        "width": 416
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        656,
+        -512
+      ],
+      "id": "b7af7a3e-629b-4336-80d9-e417bf16ca06",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## 3. Retire Cases From the Active Queue\n\nFor tickets that no longer meet the attention criteria,\nlook for an existing queue entry by ticket_id.\n\nIf an entry exists:\n• Set queue_status to Inactive.\n• Copy the current processing and resolution statuses.\n• Refresh last_refreshed_at.\n\nIf no entry exists, leave the queue unchanged.\n\nKeep inactive records for reference.\nThe sheet filter shows only Active cases.\n\nTickets deleted from Support_Tickets are not\nautomatically marked Inactive by this workflow.",
+        "height": 304,
+        "width": 464
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        672,
+        144
+      ],
+      "id": "ac769c57-f8ce-45c0-8420-3925c4a66384",
+      "name": "Sticky Note3"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Start Follow-up Queue Test": {
+      "main": [
+        [
+          {
+            "node": "Get Support Tickets for Follow-up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Support Tickets for Follow-up": {
+      "main": [
+        [
+          {
+            "node": "Needs Support Attention?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs Support Attention?": {
+      "main": [
+        [
+          {
+            "node": "Prepare Follow-up Queue Item",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Find Existing Follow-up Entry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Follow-up Queue Item": {
+      "main": [
+        [
+          {
+            "node": "Save Follow-up Queue Item",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Existing Follow-up Entry": {
+      "main": [
+        [
+          {
+            "node": "Follow-up Entry Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Follow-up Entry Exists?": {
+      "main": [
+        [
+          {
+            "node": "Mark Follow-up Entry Inactive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  }
+}
