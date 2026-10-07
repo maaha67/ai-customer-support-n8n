@@ -72,3 +72,4 @@ Checks approval and ticket readiness, sends responses, and records results.
 Maintains active cases needing attention and marks existing entries inactive when attention is no longer required.
 
 ![Support Follow-up Queue](<Images/CSR-04  Support Follow-up Queue 1.png>)
+![Manual Test Results](<Images/Test Results.PNG>)
