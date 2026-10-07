@@ -52,3 +52,23 @@ Damaged items use a 7-day window from delivery; returns use a 30-day window. Bot
 See `docs/review.md` for the export review and isolated fixture checks. Earlier manual end-to-end tests were reported during development; the generalized imports need a fresh test after configuration. No live n8n, Gmail or Sheets execution was performed during this export review.
 
 This is a portfolio demo. Google Sheets updates are not atomic; concurrent runs can race. Sheet failures and approval dispatch failures may stop execution without recording a ticket error. Actions stuck In Progress and ambiguous email failures need manual reconciliation against Gmail Sent. The follow-up queue does not send follow-ups, revise drafts or reconcile deleted tickets. Email matching is not customer authentication.
+## Workflow Screenshots
+
+### CSR-01 — Support Ticket Processing
+Validates tickets, classifies requests, verifies orders, checks policies, and drafts responses.
+
+![Support Ticket Processing](<Images/CSR-01  Support Ticket Processing.png>)
+### CSR-02 — Support Response Approval
+Requests human approval and records approved or rejected responses.
+
+![Support Response Approval](<Images/CSR-02  Support Response Approval.png>)
+
+### CSR-03 — Execute Support Responses
+Checks approval and ticket readiness, sends responses, and records results.
+
+![Execute Support Responses](<Images/CSR-03  Execute Support Responses.png>)
+
+### CSR-04 — Support Follow-up Queue
+Maintains active cases needing attention and marks existing entries inactive when attention is no longer required.
+
+![Support Follow-up Queue](<Images/CSR-04  Support Follow-up Queue 1.png>)
